@@ -1,4 +1,5 @@
 const tmi = require('tmi.js');
+const chalk = require('chalk');
 
 class Queue {
     constructor() { this.q = []; }
@@ -7,16 +8,29 @@ class Queue {
     length()      { return this.q.length; }
 }
 
+class Message {
+    constructor(name, message, color) {
+        this.name = name;
+        this.message = message;
+        this.color = color;
+    } 
+}
+
 const CHAT_QUEUE = new Queue();
 
 const client = new tmi.Client({
-	channels: [ 'fl0m' ]
+	channels: [ 'sodapoppin' ]
 });
 
 client.connect();
 
 client.on('message', (channel, tags, message, self) => {
-    CHAT_QUEUE.send(`${tags['display-name']}: ${message}`);
+    //console.log(`[${chalk.hex(tags['color']).bold(tags['display-name'])}] ${message}`);
+    let msg = new Message();
+    msg.message = message;
+    msg.name = tags['display-name'];
+    msg.color = tags['color'];
+    CHAT_QUEUE.send(msg);
 });
 
 async function processQueue() {
@@ -32,7 +46,8 @@ async function processQueue() {
 }
 
 async function parseNextMessage() {
-    console.log(CHAT_QUEUE.receive());
+    let msg = CHAT_QUEUE.receive();
+    console.log(`[${chalk.hex(msg.color).bold(msg.name)}] ${msg.message} `)
 }
 
 processQueue();

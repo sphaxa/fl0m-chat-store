@@ -19,13 +19,12 @@ class Message {
 const CHAT_QUEUE = new Queue();
 
 const client = new tmi.Client({
-	channels: [ 'sodapoppin' ]
+	channels: [ 'moonmoon' ]
 });
 
 client.connect();
 
 client.on('message', (channel, tags, message, self) => {
-    //console.log(`[${chalk.hex(tags['color']).bold(tags['display-name'])}] ${message}`);
     let msg = new Message();
     msg.message = message;
     msg.name = tags['display-name'];
@@ -35,7 +34,7 @@ client.on('message', (channel, tags, message, self) => {
 
 async function processQueue() {
     if (CHAT_QUEUE.length() < 10) {
-        console.log("Waiting for queue to populate...");
+        console.log(chalk.bgGreen.black("Waiting for queue to populate..."));
         setTimeout(() => {processQueue()}, 10000);
     } else {
         while (CHAT_QUEUE.length() > 0) {
@@ -47,7 +46,18 @@ async function processQueue() {
 
 async function parseNextMessage() {
     let msg = CHAT_QUEUE.receive();
-    console.log(`[${chalk.hex(msg.color).bold(msg.name)}] ${msg.message} `)
+    if (checkIfBot(msg)) {
+        return;
+    }
+    console.log(`[${chalk.hex(msg.color).bold(msg.name)}] ${msg.message} `);
+}
+
+function checkIfBot(msg) {
+    if (msg.name === "Nightbot") {
+        console.log(`🤖 ${chalk.black.bgRed(msg.name)} ${msg.message} `);
+        return true;
+    }
+    return false;
 }
 
 processQueue();

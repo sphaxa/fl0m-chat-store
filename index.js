@@ -1,6 +1,9 @@
 const tmi = require('tmi.js');
 const chalk = require('chalk');
 
+var tempmessages = require('./templates/temp.json');
+var chatdata = require('./templates/data.json');
+
 class Queue {
     constructor() { this.q = []; }
     send( item )  { this.q.push(item); }
@@ -19,7 +22,7 @@ class Message {
 const CHAT_QUEUE = new Queue();
 
 const client = new tmi.Client({
-	channels: [ 'moonmoon' ]
+	channels: [ 'sphaxa' ]
 });
 
 client.connect();
@@ -46,6 +49,9 @@ async function processQueue() {
 
 async function parseNextMessage() {
     let msg = CHAT_QUEUE.receive();
+    if (ifStoreTemp(msg)) {
+        return;
+    }
     if (checkIfBot(msg)) {
         return;
     }
@@ -53,11 +59,35 @@ async function parseNextMessage() {
 }
 
 function checkIfBot(msg) {
-    if (msg.name === "Nightbot") {
+    // RESET THIS DUMBASS
+    if (msg.name === "sphaxa") {
         console.log(`🤖 ${chalk.black.bgRed(msg.name)} ${msg.message} `);
+        processNightbot(msg);
         return true;
     }
     return false;
+}
+
+function ifStoreTemp(msg) {
+    if (msg.message.startsWith("%?")) {
+        tempmessages.lastJoris = msg.name;
+        console.log(`[${chalk.bgBlue.bold(msg.name)}] ${msg.message} `);
+        appLog(msg.name + " triggered joris!");
+        return true;
+    }
+    return false;
+}
+
+function appLog(message) {
+    console.log("🔷 " + chalk.bgBlue.black("App") + " " + message);
+}
+
+function processNightbot(msg) {
+    if (msg.message.includes("pops a 1deag on")) {
+        let name = msg.message.split(' ')[0];
+        chatdata['1deags'][name] = chatdata['1deags'][name]++;
+        console.log(chatdata);
+    }
 }
 
 processQueue();

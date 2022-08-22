@@ -22,7 +22,7 @@ class Message {
 const CHAT_QUEUE = new Queue();
 
 const client = new tmi.Client({
-	channels: [ 'sphaxa' ]
+	channels: [ 'fl0m' ]
 });
 
 client.connect();
@@ -59,8 +59,7 @@ async function parseNextMessage() {
 }
 
 function checkIfBot(msg) {
-    // RESET THIS DUMBASS
-    if (msg.name === "sphaxa") {
+    if (msg.name == "Nightbot") {
         console.log(`🤖 ${chalk.black.bgRed(msg.name)} ${msg.message} `);
         processNightbot(msg);
         return true;
@@ -85,8 +84,9 @@ function appLog(message) {
 function processNightbot(msg) {
     if (msg.message.includes("pops a 1deag on")) {
         let name = msg.message.split(' ')[0];
+        let hitname = msg.message.split(' ')[5];
         chatdata['1deags'][name] = chatdata['1deags'][name]++;
-        console.log(chatdata);
+        appLog(name + " hit " + hitname + " with a 1deag!");
     }
 }
 

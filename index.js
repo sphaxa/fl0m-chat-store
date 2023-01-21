@@ -1,8 +1,14 @@
 const tmi = require('tmi.js');
 const chalk = require('chalk');
+require('./modules/logger');
+
+const _7tv = require('./modules/7tv');
+const bttv = require('./modules/bttv');
+const ffz = require('./modules/ffz');
 
 var tempmessages = require('./templates/temp.json');
 var chatdata = require('./templates/data.json');
+//var emotes = require('./data/emotes.json');
 
 class Queue {
     constructor() { this.q = []; }
@@ -35,7 +41,11 @@ client.on('message', (channel, tags, message, self) => {
     CHAT_QUEUE.send(msg);
 });
 
-async function processQueue() {
+function loadData() {
+    loadEmotes();
+}
+
+function processQueue() {
     if (CHAT_QUEUE.length() < 10) {
         console.log(chalk.bgGreen.black("Waiting for queue to populate..."));
         setTimeout(() => {processQueue()}, 10000);
@@ -47,7 +57,7 @@ async function processQueue() {
     }
 }
 
-async function parseNextMessage() {
+function parseNextMessage() {
     let msg = CHAT_QUEUE.receive();
     if (ifStoreTemp(msg)) {
         return;
@@ -77,17 +87,21 @@ function ifStoreTemp(msg) {
     return false;
 }
 
-function appLog(message) {
-    console.log("🔷 " + chalk.bgBlue.black("App") + " " + message);
-}
-
 function processNightbot(msg) {
+    let msg_array = msg.message.split(' ');
     if (msg.message.includes("pops a 1deag on")) {
-        let name = msg.message.split(' ')[0];
-        let hitname = msg.message.split(' ')[5];
+        let name = msg_array[0];
+        let hitname = msg_array[5];
         chatdata['1deags'][name] = chatdata['1deags'][name]++;
         appLog(name + " hit " + hitname + " with a 1deag!");
     }
 }
 
+function loadEmotes() {
+    _7tv.loadEmotes();
+    bttv.loadEmotes();
+    ffz.loadEmotes();
+}
+
+loadData();
 processQueue();
